@@ -51,6 +51,7 @@ if (BOX2D_BUILD_TESTBED)
 	add_subdirectory(extern/imgui)
 	add_subdirectory(extern/sajson)
 	add_subdirectory(testbed)
+	add_subdirectory(workshop-game)
 
 	# default startup project for Visual Studio
 	if (MSVC)
