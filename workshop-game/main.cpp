@@ -70,7 +70,7 @@ struct Camera {
     float m_zoom;
     int32 m_width;
     int32 m_height;
-}; 
+};
 
 void glfwErrorCallback(int error, const char* description)
 {
@@ -102,7 +102,7 @@ int main()
     // Load OpenGL functions using glad
     int version = gladLoadGL(glfwGetProcAddress);
 
-	// Control the frame rate. One draw per monitor refresh.
+    // Control the frame rate. One draw per monitor refresh.
 
     // clear previous frame (avoid creates shadows)
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -112,8 +112,8 @@ int main()
 
     //main application loop
     while (!glfwWindowShouldClose(g_mainWindow)) {
-        // use std::chrono to control frame rate. Objective here is to maintain a steady 60 frames 
-        // per second (no more, hopefully no less)
+        // use std::chrono to control frame rate. Objective here is to maintain
+        // a steady 60 frames per second (no more, hopefully no less)
         std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
 
         // put the rendered frame on the screen
@@ -121,8 +121,8 @@ int main()
 
         glfwPollEvents();
 
-        // Throttle to cap at 60 FPS. Which means if it's going to be past 60FPS, 
-        // sleeps a while instead of doing more frames.
+        // Throttle to cap at 60 FPS. Which means if it's going to be past
+        // 60FPS, sleeps a while instead of doing more frames.
         std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
         std::chrono::duration<double> target(1.0 / 60.0);
         std::chrono::duration<double> timeUsed = t2 - t1;
