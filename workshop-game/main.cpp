@@ -6,71 +6,15 @@
 #include "imgui/imgui.h"
 #include "glad/gl.h"
 #include "GLFW/glfw3.h"
+#include "draw_game.h"
 
 #include "box2d/box2d.h"
 
 // GLFW main window pointer
 GLFWwindow* g_mainWindow = nullptr;
 
+b2World* g_world;
 
-struct Camera {
-    Camera()
-    {
-        m_width = 1280;
-        m_height = 800;
-        ResetView();
-    }
-
-    void ResetView()
-    {
-        m_center.Set(0.0f, 20.0f);
-        m_zoom = 1.0f;
-    }
-    b2Vec2 ConvertScreenToWorld(const b2Vec2& ps)
-    {
-        float w = float(m_width);
-        float h = float(m_height);
-        float u = ps.x / w;
-        float v = (h - ps.y) / h;
-
-        float ratio = w / h;
-        b2Vec2 extents(ratio * 25.0f, 25.0f);
-        extents *= m_zoom;
-
-        b2Vec2 lower = m_center - extents;
-        b2Vec2 upper = m_center + extents;
-
-        b2Vec2 pw;
-        pw.x = (1.0f - u) * lower.x + u * upper.x;
-        pw.y = (1.0f - v) * lower.y + v * upper.y;
-        return pw;
-    }
-    b2Vec2 ConvertWorldToScreen(const b2Vec2& pw)
-    {
-        float w = float(m_width);
-        float h = float(m_height);
-        float ratio = w / h;
-        b2Vec2 extents(ratio * 25.0f, 25.0f);
-        extents *= m_zoom;
-
-        b2Vec2 lower = m_center - extents;
-        b2Vec2 upper = m_center + extents;
-
-        float u = (pw.x - lower.x) / (upper.x - lower.x);
-        float v = (pw.y - lower.y) / (upper.y - lower.y);
-
-        b2Vec2 ps;
-        ps.x = u * w;
-        ps.y = (1.0f - v) * h;
-        return ps;
-    }
-    void BuildProjectionMatrix(float* m, float zBias);
-
-    b2Vec2 m_center;
-    float m_zoom;
-    int32 m_width;
-    int32 m_height;
-};
 
 void glfwErrorCallback(int error, const char* description)
 {
@@ -80,16 +24,12 @@ void glfwErrorCallback(int error, const char* description)
 int main()
 {
 
-    Camera camera;
-    camera.m_height = 800;
-    camera.m_width = 800;
-
     if (glfwInit() == 0) {
         fprintf(stderr, "Failed to initialize GLFW\n");
         return -1;
     }
 
-    g_mainWindow = glfwCreateWindow(camera.m_width, camera.m_height, "My game", NULL, NULL);
+    g_mainWindow = glfwCreateWindow(g_camera.m_width, g_camera.m_height, "My game", NULL, NULL);
 
     if (g_mainWindow == NULL) {
         fprintf(stderr, "Failed to open GLFW g_mainWindow.\n");
@@ -102,11 +42,35 @@ int main()
     // Load OpenGL functions using glad
     int version = gladLoadGL(glfwGetProcAddress);
 
+    // setup Box2D world and apply gravity
+    b2Vec2 gravity;
+    gravity.Set(0.0f, -10.0f);
+    g_world = new b2World(gravity);
+
+    // create debug draw. This will actually render all the game for us
+    g_debugDraw.Create();
+    g_world->SetDebugDraw(&g_debugDraw);
+
+
+    // create ground and add it to the world
+    b2BodyDef bodyDef;
+    b2Body* groundBody = g_world->CreateBody(&bodyDef);
+
+    //sample box body
+    b2Body* b1;
+    {
+        b2EdgeShape shape;
+        shape.SetTwoSided(b2Vec2(-40.0f, 0.0f), b2Vec2(40.0f, 0.0f));
+
+        b2BodyDef bd;
+        b1 = g_world->CreateBody(&bd);
+        b1->CreateFixture(&shape, 0.0f);
+    }
+
+    // glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+
     // Control the frame rate. One draw per monitor refresh.
-
-    // clear previous frame (avoid creates shadows)
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
     std::chrono::duration<double> frameTime(0.0);
     std::chrono::duration<double> sleepAdjust(0.0);
 
@@ -115,6 +79,30 @@ int main()
         // use std::chrono to control frame rate. Objective here is to maintain
         // a steady 60 frames per second (no more, hopefully no less)
         std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
+
+        glfwGetWindowSize(g_mainWindow, &g_camera.m_width, &g_camera.m_height);
+
+        int bufferWidth, bufferHeight;
+        glfwGetFramebufferSize(g_mainWindow, &bufferWidth, &bufferHeight);
+        glViewport(0, 0, bufferWidth, bufferHeight);
+
+        // clear previous frame (avoid creates shadows)
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // run the simulation for one frame
+        float timeStep = 60 > 0.0f ? 1.0f / 60 : float(0.0f);
+
+        // enable objects to be draw
+        uint32 flags = 0;
+        flags += b2Draw::e_shapeBit;
+        flags += b2Draw::e_jointBit;
+        flags += b2Draw::e_aabbBit;
+        flags += b2Draw::e_centerOfMassBit;
+
+        g_debugDraw.SetFlags(flags);
+        g_world->Step(timeStep, 8, 3); // TODO: explain these parameters
+        g_world->DebugDraw();
+        g_debugDraw.Flush();
 
         // put the rendered frame on the screen
         glfwSwapBuffers(g_mainWindow);
@@ -139,5 +127,8 @@ int main()
 
 
     glfwTerminate();
+
+    g_debugDraw.Destroy();
+    delete g_world;
     return 0;
 }

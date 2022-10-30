@@ -1,4 +1,6 @@
 set (GAME_SOURCE_FILES
+    draw_game.cpp
+    draw_game.h
     main.cpp
 )
 
