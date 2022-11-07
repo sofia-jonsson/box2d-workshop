@@ -71,7 +71,7 @@ int main()
     box_fd.friction = 0.1f;
     b2BodyDef box_bd;
     box_bd.type = b2_dynamicBody;
-    box_bd.position.Set(-6.0f + 1.0f, 11.25f);
+    box_bd.position.Set(-5.0f, 11.25f);
     box = g_world->CreateBody(&box_bd);
     box->CreateFixture(&box_fd);
 
