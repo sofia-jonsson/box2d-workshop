@@ -15,10 +15,15 @@ GLFWwindow* g_mainWindow = nullptr;
 
 b2World* g_world;
 
-
-void glfwErrorCallback(int error, const char* description)
+void MouseButtonCallback(GLFWwindow* window, int32 button, int32 action, int32 mods)
 {
-    fprintf(stderr, "GLFW error occured. Code: %d. Description: %s\n", error, description);
+    double xd, yd;
+    // get the position where the mouse was pressed
+    glfwGetCursorPos(g_mainWindow, &xd, &yd);
+    b2Vec2 ps((float)xd, (float)yd);
+    // now convert this position to Box2D world coordinates
+    b2Vec2 pw = g_camera.ConvertScreenToWorld(ps);
+
 }
 
 int main()
@@ -37,6 +42,9 @@ int main()
         glfwTerminate();
         return -1;
     }
+
+    // Set callbacks using GLFW
+    glfwSetMouseButtonCallback(g_mainWindow, MouseButtonCallback);
 
     glfwMakeContextCurrent(g_mainWindow);
 
