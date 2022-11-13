@@ -15,8 +15,25 @@ GLFWwindow* g_mainWindow = nullptr;
 
 b2World* g_world;
 
+void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    // code for keys here https://www.glfw.org/docs/3.3/group__keys.html
+    // and modifiers https://www.glfw.org/docs/3.3/group__mods.html
+}
+
+void MouseMotionCallback(GLFWwindow*, double xd, double yd)
+{
+    // get the position where the mouse was pressed
+    b2Vec2 ps((float)xd, (float)yd);
+    // now convert this position to Box2D world coordinates
+    b2Vec2 pw = g_camera.ConvertScreenToWorld(ps);
+}
+
 void MouseButtonCallback(GLFWwindow* window, int32 button, int32 action, int32 mods)
 {
+    // code for mouse button keys https://www.glfw.org/docs/3.3/group__buttons.html
+    // and modifiers https://www.glfw.org/docs/3.3/group__buttons.html
+    // action is either GLFW_PRESS or GLFW_RELEASE
     double xd, yd;
     // get the position where the mouse was pressed
     glfwGetCursorPos(g_mainWindow, &xd, &yd);
@@ -45,6 +62,8 @@ int main()
 
     // Set callbacks using GLFW
     glfwSetMouseButtonCallback(g_mainWindow, MouseButtonCallback);
+    glfwSetKeyCallback(g_mainWindow, KeyCallback);
+    glfwSetCursorPosCallback(g_mainWindow, MouseMotionCallback);
 
     glfwMakeContextCurrent(g_mainWindow);
 
