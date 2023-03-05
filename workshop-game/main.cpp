@@ -4,6 +4,8 @@
 #include <thread>
 
 #include "imgui/imgui.h"
+#include "imgui_impl_glfw_game.h"
+#include "imgui_impl_opengl3_game.h"
 #include "glad/gl.h"
 #include "GLFW/glfw3.h"
 #include "draw_game.h"
@@ -79,6 +81,7 @@ int main()
     // create our games. Debug draw calls all the OpenGL functions for us.
     g_debugDraw.Create();
     g_world->SetDebugDraw(&g_debugDraw);
+    CreateUI(g_mainWindow);
 
 
     // 4) some starter objects are created here, such as the ground
@@ -125,6 +128,10 @@ int main()
         // clear previous frame (avoid creates shadows)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
         // enable objects to be draw
         uint32 flags = 0;
         flags += b2Draw::e_shapeBit;
@@ -137,6 +144,8 @@ int main()
         // 7) Render everything on the screen
         g_world->DebugDraw();
         g_debugDraw.Flush();
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(g_mainWindow);
 
         glfwPollEvents();

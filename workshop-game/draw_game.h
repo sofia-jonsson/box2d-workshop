@@ -94,4 +94,7 @@ extern DebugDraw g_debugDraw;
 extern Camera g_camera;
 extern GLFWwindow* g_mainWindow;
 
+void CreateUI(GLFWwindow* window, const char* glslVersion = NULL);
+
+
 #endif

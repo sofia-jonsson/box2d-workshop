@@ -26,6 +26,8 @@
 #include <stdlib.h>
 
 #include "imgui/imgui.h"
+#include "imgui_impl_glfw_game.h"
+#include "imgui_impl_opengl3_game.h"
 
 #define BUFFER_OFFSET(x)  ((const void*) (x))
 
@@ -841,4 +843,43 @@ void DebugDraw::Flush()
 	m_triangles->Flush();
 	m_lines->Flush();
 	m_points->Flush();
+}
+
+void CreateUI(GLFWwindow* window, const char* glslVersion)
+{
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+
+    bool success;
+    success = ImGui_ImplGlfw_InitForOpenGL(window, false);
+    if (success == false) {
+        printf("ImGui_ImplGlfw_InitForOpenGL failed\n");
+        assert(false);
+    }
+
+    success = ImGui_ImplOpenGL3_Init(glslVersion);
+    if (success == false) {
+        printf("ImGui_ImplOpenGL3_Init failed\n");
+        assert(false);
+    }
+
+    // Search for font file
+    const char* fontPath1 = "data/droid_sans.ttf";
+    const char* fontPath2 = "../data/droid_sans.ttf";
+    const char* fontPath = nullptr;
+    FILE* file1 = fopen(fontPath1, "rb");
+    FILE* file2 = fopen(fontPath2, "rb");
+    if (file1) {
+        fontPath = fontPath1;
+        fclose(file1);
+    }
+
+    if (file2) {
+        fontPath = fontPath2;
+        fclose(file2);
+    }
+
+    if (fontPath) {
+        ImGui::GetIO().Fonts->AddFontFromFileTTF(fontPath, 13.0f);
+    }
 }
