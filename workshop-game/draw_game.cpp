@@ -845,7 +845,7 @@ void DebugDraw::Flush()
 	m_points->Flush();
 }
 
-void CreateUI(GLFWwindow* window, const char* glslVersion)
+void CreateUI(GLFWwindow* window, float font_size, const char* glslVersion)
 {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -880,6 +880,6 @@ void CreateUI(GLFWwindow* window, const char* glslVersion)
     }
 
     if (fontPath) {
-        ImGui::GetIO().Fonts->AddFontFromFileTTF(fontPath, 13.0f);
+        ImGui::GetIO().Fonts->AddFontFromFileTTF(fontPath, font_size);
     }
 }

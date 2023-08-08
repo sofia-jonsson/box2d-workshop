@@ -81,7 +81,7 @@ int main()
     // create our games. Debug draw calls all the OpenGL functions for us.
     g_debugDraw.Create();
     g_world->SetDebugDraw(&g_debugDraw);
-    CreateUI(g_mainWindow);
+    CreateUI(g_mainWindow, 20.0f /* font size in pixels */);
 
 
     // 4) some starter objects are created here, such as the ground
@@ -131,6 +131,13 @@ int main()
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+
+        // Setup ImGui attributes so we can draw text on the screen. Basically create a window of the size of our viewport.
+        ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
+        ImGui::SetNextWindowSize(ImVec2(float(g_camera.m_width), float(g_camera.m_height)));
+        ImGui::SetNextWindowBgAlpha(0.0f);
+        ImGui::Begin("Overlay", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar);
+        ImGui::End();
 
         // enable objects to be draw
         uint32 flags = 0;
