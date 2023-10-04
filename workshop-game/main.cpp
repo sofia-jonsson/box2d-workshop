@@ -48,7 +48,7 @@ void MouseButtonCallback(GLFWwindow* window, int32 button, int32 action, int32 m
 int main()
 {
 
-    // 1) glfw initialization things
+    // glfw initialization things
     if (glfwInit() == 0) {
         fprintf(stderr, "Failed to initialize GLFW\n");
         return -1;
@@ -72,19 +72,19 @@ int main()
     // Load OpenGL functions using glad
     int version = gladLoadGL(glfwGetProcAddress);
 
-    // 2) setup Box2D world and with some gravity
+    // Setup Box2D world and with some gravity
     b2Vec2 gravity;
     gravity.Set(0.0f, -10.0f);
     g_world = new b2World(gravity);
 
-    // 3) create debug draw. We will be using the debugDraw visualization to
-    // create our games. Debug draw calls all the OpenGL functions for us.
+    // Create debug draw. We will be using the debugDraw visualization to create
+    // our games. Debug draw calls all the OpenGL functions for us.
     g_debugDraw.Create();
     g_world->SetDebugDraw(&g_debugDraw);
     CreateUI(g_mainWindow, 20.0f /* font size in pixels */);
 
 
-    // 4) some starter objects are created here, such as the ground
+    // Some starter objects are created here, such as the ground
     b2Body* ground;
     b2EdgeShape ground_shape;
     ground_shape.SetTwoSided(b2Vec2(-40.0f, 0.0f), b2Vec2(40.0f, 0.0f));
@@ -106,7 +106,7 @@ int main()
     box->CreateFixture(&box_fd);
 
 
-    // This is color of our background in RGB components
+    // This is the color of our background in RGB components
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
     // Control the frame rate. One draw per monitor refresh.
@@ -115,7 +115,7 @@ int main()
 
     // 5) main application loop
     while (!glfwWindowShouldClose(g_mainWindow)) {
-        // use std::chrono to control frame rate. Objective here is to maintain
+        // Use std::chrono to control frame rate. Objective here is to maintain
         // a steady 60 frames per second (no more, hopefully no less)
         std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
 
@@ -125,30 +125,31 @@ int main()
         glfwGetFramebufferSize(g_mainWindow, &bufferWidth, &bufferHeight);
         glViewport(0, 0, bufferWidth, bufferHeight);
 
-        // clear previous frame (avoid creates shadows)
+        // Clear previous frame (avoid creates shadows)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        // Setup ImGui attributes so we can draw text on the screen. Basically create a window of the size of our viewport.
+        // Setup ImGui attributes so we can draw text on the screen. Basically
+        // create a window of the size of our viewport.
         ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
         ImGui::SetNextWindowSize(ImVec2(float(g_camera.m_width), float(g_camera.m_height)));
         ImGui::SetNextWindowBgAlpha(0.0f);
         ImGui::Begin("Overlay", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar);
         ImGui::End();
 
-        // enable objects to be draw
+        // Enable objects to be draw
         uint32 flags = 0;
         flags += b2Draw::e_shapeBit;
         g_debugDraw.SetFlags(flags);
 
-        // 6) When we call Step(), we run the simulation for one frame
+        // When we call Step(), we run the simulation for one frame
         float timeStep = 60 > 0.0f ? 1.0f / 60 : float(0.0f);
-        g_world->Step(timeStep, 8, 3); // TODO: explain these parameters
+        g_world->Step(timeStep, 8, 3);
 
-        // 7) Render everything on the screen
+        // Render everything on the screen
         g_world->DebugDraw();
         g_debugDraw.Flush();
         ImGui::Render();
@@ -157,7 +158,7 @@ int main()
 
         glfwPollEvents();
 
-        // 8) Throttle to cap at 60 FPS. Which means if it's going to be past
+        // Throttle to cap at 60 FPS. Which means if it's going to be past
         // 60FPS, sleeps a while instead of doing more frames.
         std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
         std::chrono::duration<double> target(1.0 / 60.0);
@@ -175,7 +176,7 @@ int main()
 
     }
 
-    // 9) terminate the program if it reaches here
+    // Terminate the program if it reaches here
     glfwTerminate();
     g_debugDraw.Destroy();
     delete g_world;
