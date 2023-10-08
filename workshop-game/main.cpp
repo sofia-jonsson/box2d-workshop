@@ -113,7 +113,7 @@ int main()
     std::chrono::duration<double> frameTime(0.0);
     std::chrono::duration<double> sleepAdjust(0.0);
 
-    // 5) main application loop
+    // Main application loop
     while (!glfwWindowShouldClose(g_mainWindow)) {
         // Use std::chrono to control frame rate. Objective here is to maintain
         // a steady 60 frames per second (no more, hopefully no less)
@@ -156,6 +156,8 @@ int main()
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(g_mainWindow);
 
+        // Process events (mouse and keyboard) and call the functions we
+        // registered before.
         glfwPollEvents();
 
         // Throttle to cap at 60 FPS. Which means if it's going to be past
