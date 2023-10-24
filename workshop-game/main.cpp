@@ -12,6 +12,7 @@
 
 #include "box2d/box2d.h"
 #include <iostream>
+#include <set>
 
 // GLFW main window pointer
 GLFWwindow* g_mainWindow = nullptr;
@@ -163,14 +164,23 @@ int main()
         // When we call Step(), we run the simulation for one frame
         float timeStep = 60 > 0.0f ? 1.0f / 60 : float(0.0f);
         g_world->Step(timeStep, 8, 3);
-        //b2Contact * contact = g_world->GetContactList();
-        //std::set to_delete = 0;
-        //while (contact != nullptr) {
-        //    if (contact->IsTouching()) {
-        //        std::cout << "Collision happened!\n";
-        //    }
-        //    contact = contact->GetNext();
-        //}
+        b2Contact * contact = g_world->GetContactList();
+        std::set<b2Body*> to_delete;
+        while (contact != nullptr) {
+            if (contact->IsTouching()) {
+                
+                b2Fixture* fixture_a = contact->GetFixtureA();
+                b2Body* body_a = fixture_a->GetBody();
+                if (body_a->GetType() == b2_dynamicBody) {
+                    to_delete.insert(body_a);
+                    std::cout << "Collision happened!\n";
+                }
+            }
+            contact = contact->GetNext();
+        }
+        for (const auto& box : to_delete) {
+            g_world->DestroyBody(box);
+        }
 
         // Render everything on the screen
         g_world->DebugDraw();
