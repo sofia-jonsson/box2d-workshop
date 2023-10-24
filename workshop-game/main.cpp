@@ -11,6 +11,7 @@
 #include "draw_game.h"
 
 #include "box2d/box2d.h"
+#include <iostream>
 
 // GLFW main window pointer
 GLFWwindow* g_mainWindow = nullptr;
@@ -42,7 +43,20 @@ void MouseButtonCallback(GLFWwindow* window, int32 button, int32 action, int32 m
     b2Vec2 ps((float)xd, (float)yd);
     // now convert this position to Box2D world coordinates
     b2Vec2 pw = g_camera.ConvertScreenToWorld(ps);
-
+    if (action == GLFW_PRESS) {
+        b2Body* domino1;
+        b2PolygonShape domino_shape;
+        domino_shape.SetAsBox(1.0f, 1.0f);
+        b2FixtureDef domino_fd;
+        domino_fd.shape = &domino_shape;
+        domino_fd.density = 20.0f;
+        domino_fd.friction = 0.1f;
+        b2BodyDef domino_bd;
+        domino_bd.type = b2_dynamicBody;
+        domino_bd.position.Set(pw(0), pw(1));
+        domino1 = g_world->CreateBody(&domino_bd);
+        domino1->CreateFixture(&domino_fd);
+    }
 }
 
 int main()
@@ -106,6 +120,7 @@ int main()
     box->CreateFixture(&box_fd);
 
 
+
     // This is the color of our background in RGB components
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -148,6 +163,14 @@ int main()
         // When we call Step(), we run the simulation for one frame
         float timeStep = 60 > 0.0f ? 1.0f / 60 : float(0.0f);
         g_world->Step(timeStep, 8, 3);
+        //b2Contact * contact = g_world->GetContactList();
+        //std::set to_delete = 0;
+        //while (contact != nullptr) {
+        //    if (contact->IsTouching()) {
+        //        std::cout << "Collision happened!\n";
+        //    }
+        //    contact = contact->GetNext();
+        //}
 
         // Render everything on the screen
         g_world->DebugDraw();
